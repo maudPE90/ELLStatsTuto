@@ -1,0 +1,451 @@
+---
+title: "Intro to Stats - 1: Examining data"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## 1. Examining numerical data
+### 1.1 Looking at the data: plots and distributions
+
+### First look at the data
+
+Let's look at an example dataset: the confined PhD data set, which tells us about the productivity of 500 fake PhD students (counted in average number of words written per day).
+
+```{r load, exercise=FALSE, echo=TRUE}
+#Load the dataset (it needs to be in your working directory)
+phd <- read.csv("confinedPhD.csv")
+```
+
+To have a first look at the dataset, we will use the "head" function. The dataset is a **data frame**: a matrix with columns - the **variables** - and rows - the **observations**.
+```{r head, exercise=FALSE, echo=TRUE}
+head(phd)
+```
+
+
+Let's have a look at the variables (the columns). We have  
+- **subject**: that is the number of the phd student. You can see it is currently marked as "int" which means "integer". It's a numeral and we could do operations with it - but we don't want that. We may have to change it into a factor.  
+- **sex**: it's a "fctr", a factor.   
+- **confined**: another factor with two levels, yes/no, telling you whether the measurements were taken while the PhD student was confined because of the coronavirus or before.
+- **wdCount**: it's a "double" (dbl) or a float, because it is not an integer. Number of words written per day on average.  
+- **cg.hours**: number of hours a day (on average) spent playing computer games  
+- **sleep.hours**: number of hours of sleep per night (on average)  
+- **time.resp.email**: time taken to reply to an email from the supervisor in minutes  
+- **fav.baking**: favourite thing to bake. 
+- **happy.confined**: how happy the student is to be confined from a scale of 1 (not happy at all) to 5 (very happy).  
+
+#### Looking further
+To access a column of a dataset, we use the **$** operator. Can you have a look at the first rows of the fav.baking variable?
+```{r dollar, exercise=TRUE}
+head(phd$wdCount)
+
+```
+
+
+Remember how to check the type (numeric, character, etc) of each variable? Check what kind of variable "confined", "fav.baking", and "wdCount" are.
+
+```{r str, exercise=TRUE}
+
+```
+
+#### Variable types
+Remember, we usually distinguish between several types of variables:  
+- **numerical**: when it's all about numbers! They can be:  
+    - *continuous*: for ex amount of spending on the healthcare system, people's sizes, etc  
+    - *discrete*: when it can only be an integer (ex, the number of children someone has - there is no continuum)  
+- **categorical**: these are non-numerical variables, for ex. whether someone smokes (yes/no), what their favourite colours is, etc.  
+- **ordinal**: these are a special type of numerical variables: they are numbers, but they are ranked. For example, the degree of satisfaction with something.  
+
+**Q**: What kind of variable is each of the dataset's variables? 
+
+**More questions**
+
+```{r q-RV, echo=FALSE}
+question("We want to know how confinement and sleep hours affect the productivity of PhD candidates. What is the response (or dependent) variable?",
+         answer("subject"),
+         answer("sex"),
+         answer("confined"),
+         answer("wdCount", correct=T),
+         answer("cg.hours"),
+         answer("sleep.hours"),
+         answer("time.resp.email"),
+         answer("fav.baking"),
+         answer("happy.confined")
+         )
+```
+
+```{r q-EV, echo=FALSE}
+question("We want to know how confinement and sleep hours affect the productivity of PhD candidates. What is/are the explanatory variable/s?",
+         answer("subject"),
+         answer("sex"),
+         answer("confined", correct=T),
+         answer("wdCount"),
+         answer("cg.hours"),
+         answer("sleep.hours", correct=T),
+         answer("time.resp.email"),
+         answer("fav.baking"),
+         answer("happy.confined")
+         )
+```
+
+
+Now check the levels of the fav.baking factor (hint:remember the "levels" function)
+```{r levels, exercise=TRUE}
+
+```
+
+#### the summary function
+There's a very useful function to have a quick look at what the variables look like:
+```{r summary, exercise = TRUE}
+summary(phd)
+```
+
+We may want to know the size of the dataset: how many **variables** do we have (i.e. how many columns)? How many **observations** (i.e., rows)?
+```{r n, exercise=TRUE}
+ncol(phd)
+nrow(phd)
+```
+
+#### 1.1.1 The Dot plot
+Let's have a look at the word count with a simple dot plot.
+```{r dot, exercise=TRUE}
+dotchart(phd$wdCount)
+```
+
+This plot shows each individual occurrence - each row in the "wdCount" column. In our case this is not a very interesting plot - it does not tell us anything. Let's look at the **distribution** of the word count instead with another simple plot: a *histogram*.
+
+#### 1.1.2 Histograms and density plots
+```{r hist, exercise=TRUE}
+hist(phd$wdCount, breaks=15, col="steelblue", main="Average number of words written a day", xlab="Word count")
+```
+
+We can also link the top of the bars and smooth the curve to have a *density plot*.
+```{r dens, exercise=TRUE}
+plot(density(phd$wdCount), col="steelblue", main="Density plot of word count", xlab = "Word count")
+polygon(density(phd$wdCount), col="cornflowerblue")
+```
+
+#### 1.1.3 Distributions
+This looks like a **normal distribution**. We'll come back to it, but there is a simple test to know whether our variable actually conforms to a normal distribution:
+```{r shap, exercise=FALSE, echo=TRUE}
+shapiro.test(phd$wdCount)
+```
+For now, all you need to remember is that if the p-value is SUPERIOR to 0.05, the distribution is considered normal. So here, we do have a normal distribution.   
+
+Let's have a look at the distribution of some of the other numeric variables.
+```{r hist2, exercise=TRUE}
+hist(phd$time.resp.email, breaks=15, col="steelblue", main = "Average time taken to respond to supervisor's emails", xlab="Time (minutes)")
+```
+
+This distribution is not symmetrical: it has a long tail to the right. It is *skewed* to the right. This is very characteristic of response times, for ex. 
+In both cases, there is only one peak: distributions are *unimodal* (vs *bimodal* when there are two separate peaks).  
+Try plotting the other numerical variables.
+
+```{r plotsAdd, exercise=TRUE, exercise.lines=5}
+
+```
+
+
+### 1.2 Measures of central tendency and spread
+#### 1.2.1 Central tendency
+
+The most common measure of central tendency is the *mean* (the sum of all values of the vector divided by the number of values).
+
+```{r mean, exercise=TRUE}
+sum(phd$wdCount)/length(phd$wdCount)
+mean(phd$wdCount)
+```
+
+```{r plotMean, exercise=FALSE, echo=TRUE}
+hist(phd$wdCount, breaks=15, col="steelblue", main="Average number of words written a day", xlab="Word count")
+abline(v=mean(phd$wdCount), col="red")
+```
+
+But the mean is not always the greatest descriptor of the central tendency. Look at the time data.
+
+```{r, exercise=FALSE, echo=TRUE}
+hist(phd$time.resp.email, breaks=15, col="steelblue", main = "Average time taken to respond to supervisor's emails", xlab="Time (minutes)")
+abline(v=mean(phd$time.resp.email), col="red")
+
+```
+
+The mean is strongly influenced by outliers. In those cases, it is better to take the *median*. If the data are ordered from smallest to largest, the median is the observation right in the middle. If there are an even number of observations, the median is the average of the two observations in the middle (so 50% of the observations are inferior to the median and 50% are superior).
+```{r median, exercise=TRUE}
+mean(phd$time.resp.email)
+median(phd$time.resp.email)
+```
+
+```{r histTime, echo=TRUE}
+hist(phd$time.resp.email, breaks=15, col="steelblue", main = "Average time taken to respond to supervisor's emails", xlab="Time (minutes)")
+abline(v=mean(phd$time.resp.email), col="red")
+abline(v=median(phd$time.resp.email), col="yellow")
+```
+
+The median is also the correct measure of central tendency for ordinal data like our happiness satisfaction data.
+
+```{r median2, exercise=TRUE}
+mean(phd$happy.confined)
+median(phd$happy.confined)
+```
+
+You can have a look at the count of values for each rating:
+```{r tab, exercise=TRUE}
+table(phd$happy.confined)
+```
+500/2 = 250. The median is the average of the two observations in the middle (since we have an even number of observations), i.e. the average of the 250th and 251th largest values. You can see that 114+167=281 students have replied with a 1 or 2 rating, so the median is 2.
+
+### 1.2.2 Spread / dispersion
+The most common way to describe the variability of the data is with the *variance* and the *standard deviation*.  
+The deviations is the distance of an observation from the mean.  
+If we square these deviations (so they are all positive values) and then average them we get the *variance*.  
+The *standard deviation* is the square root of the variance. 
+
+```{r sd, exercise=TRUE}
+sd(phd$wdCount)
+```
+The standard deviation of the number of words written a day is about 530. What would be the variance?   
+
+Another possible measure of dispersion involves the quartiles: the lowest 25%, 50% (that's the median) and 75%. 
+The interquartile range (difference from the 25% and 75% quartiles) gives a measure of dispersion: the larger it is, the more heterogeneous the data are.
+
+```{r IQR, exercise=TRUE}
+quantile(phd$wdCount)
+IQR(phd$wdCount)
+```
+So how many words do the 25% less productive and the 25%øore productive PhD candidates write on average each day?
+
+```{r IQR2, exercise=TRUE}
+quantile(phd$happy.confined)
+IQR(phd$happy.confined)
+```
+
+The inter quartile range can be plotted with a box-and-whisker plot.
+```{r box, exercise=TRUE}
+boxplot(phd$wdCount)
+```
+The box represents the interquartile range (so the middle 50% of the data). The line in the middle of the box is the median. The whiskers attempt to capture the data outside of the box but are never more than 1.5 * the IQR. The dots are outliers that are not captured by the whiskers.
+
+
+## 2. Examining categorical variables
+
+### 2.1 Plotting
+Let's look at our main categorical variable here: the favourite thing the students like to bake.
+
+#### 2.1.1 Tables
+To have a look at the distribution of the variable we can do a *frequency table*
+```{r tab-baking, echo=TRUE}
+table(phd$fav.baking)
+```
+
+We can also have proportions instead of count:
+
+```{r prop-baking, echo=TRUE}
+prop.table(table(phd$fav.baking))
+```
+
+Modify the following code to get percentages:
+```{r percent, exercise=TRUE, exercise.eval=TRUE}
+prop.table(table(phd$fav.baking))
+```
+
+```{r percent-hint}
+prop.table(table(phd$fav.baking))*100
+```
+
+#### 2.1.2 Barcharts
+A common way to represent the distribution of a single categorical variable is with a bar plot or bar chart. 
+
+```{r bp-baking, exercise=FALSE, echo=TRUE}
+bp.baking <- barplot(table(phd$fav.baking), col="steelblue", main="Favourite thing to bake", ylab="count", xlab="baked goods")
+text(bp.baking, table(phd$fav.baking), labels=table(phd$fav.baking), pos=1)
+```
+
+Try to modify the code to make the same graph with proportions instead of count.
+
+```{r bp-baking-prop, exercise=TRUE}
+bp.baking <- barplot(table(phd$fav.baking), col="steelblue", main="Favourite thing to bake", ylab="count", xlab="baked goods")
+text(bp.baking, table(phd$fav.baking), labels=table(phd$fav.baking), pos=1)
+```
+
+
+```{r bp-baking-prop-hint}
+#use prop.table
+bp.baking <- barplot(prop.table(table(phd$fav.baking)), col="steelblue", main="Favourite thing to bake", ylab="proportion", xlab="baked goods")
+text(bp.baking, table(phd$fav.baking), labels=table(phd$fav.baking), pos=1)
+```
+
+#### 2.1.3 Pie charts
+
+It's also possible to make a pie chart but it's usually not recommended as they are not very informative - humans are not very good at inferring quantities from angles. 
+
+```{r pie, echo=TRUE}
+pie(table(phd$fav.baking), main = "Favourite thing to bake")
+```
+
+
+### 2.2 Central tendency and spread
+
+The mode is the value that is most often observed.
+```{r mode, exercise=TRUE}
+which.max(table(phd$fav.baking))
+```
+The mode is bread. 
+
+
+
+## 3. Looking at relationships between variables
+We're usually interested in the way several variables interact, not just the distribution of one variable.
+
+### 3.1 Categorical variables
+#### 3.1.1 contingency table
+This table shows us the count of a critical variable, for example the favourite thing our PhD candidates like to bake, depending on another one - for example whether they are confined.
+```{r contingency, echo=TRUE}
+with(phd, table(fav.baking, confined))
+```
+
+Again, it's possible to have proportions instead of count. Can you figure out how by modifying the following code?
+```{r propConting, exercise=TRUE}
+with(phd, table(fav.baking, confined))
+```
+
+
+```{r propConting-hint}
+with(phd, prop.table(table(fav.baking, confined)))
+```
+
+
+You can do a contingency table with anything that's a factor - but not a continuous numerical variable. What other variables could you use insteAd of / with confined? 
+```{r quiz}
+  question("What other variables could you use instead of / with confined?",
+         answer("sex", correct=T),
+         answer("wdCount"),
+         answer("cg.hours"),
+         answer("sleep.hours"),
+         answer("time.resp.email"),
+         answer("fav.baking"),
+         answer("happy.confined", correct=T)
+         )
+```
+
+You can play around with the code above to get those tables.
+
+#### 3.1.2 Plotting categorical variables: the stacked bar plot
+```{r stacked-bar, echo=TRUE}
+barplot(table(phd$confined, phd$fav.baking),  col=c("steelblue", "forestgreen"), main="Favourite thing to bake depending on confinement", ylab="count", xlab="baked goods")
+legend("topright", c("yes", "no"), fill=c("forestgreen", "steelblue"), title="Confined")
+```
+
+#### 3.1.3 The mosaic plot
+The mosaic plot is like a stacked bar plot, but the respective proportion of each variable is reflected in the height and width of the column.
+```{r mosaic, echo=TRUE}
+mosaicplot(table(phd$fav.baking, phd$sex),  col=c("steelblue", "forestgreen"), main="Favourite thing to bake depending on sex", ylab="sex", xlab="baked goods")
+```
+
+So here each column represents a level of the favourite baking product, and the width represents the proportion of answers for each level. The columns are then split proportionnally according to the fraction of answers from male and female respondents. 
+
+### 3.2 Numerical variables
+
+#### 3.2.1 Relationship between a numerical variable and a categorical variable
+Let's look at the relationship between the word count and whether the student is confined.  
+We can look at the mean and sd for each of the levels of the categorical variable. 
+
+```{r tapply, exercise=TRUE}
+with(phd, tapply(wdCount, confined, FUN=mean))
+with(phd, tapply(wdCount, confined, FUN=sd))
+```
+We can see that the standard deviation is very similar, but the mean seems to differ by about 200 words. However, at this stage we cannot say whether this is a real difference - we are not performing any tests, just looking at the data here.
+
+```{r tapply2, echo=TRUE}
+#NB you can use tapply to get means for more subsets of the data, like so:
+with(phd, tapply(wdCount, list(confined, sex, happy.confined), FUN=mean))
+```
+
+A common way to plot this would be with barplots with error bars.
+```{r error-barplot, echo=TRUE}
+#A function to add arrows on the chart
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+ 
+#Then I calculate the standard deviation for each specie and condition :
+sdev <- tapply(phd$wdCount, phd$confined, sd)
+ 
+#I am ready to add the error bar on the plot using my "error bar" function !
+ze_barplot <- barplot(tapply(phd$wdCount, phd$confined, mean) , beside=T,col=c("steelblue" , "forestgreen") , ylim=c(0,max(phd$wdCount)), ylab="height")
+error.bar(ze_barplot,tapply(phd$wdCount, phd$confined, mean), sdev)
+```
+
+However, barplots are not very informative and a lot of information is lost (basically everything about the distribution of the variable). A much better way to plot this is to use a box and whisker plot, which will show us the median, interquartile range, and also any possible outliers.
+
+```{r box2, echo=TRUE}
+with(phd, boxplot(wdCount ~ confined, col=c("steelblue", "forestgreen"), main="Average word count in function of confinement status", ylab="Average number of words written a day", xlab="Confined"))
+```
+
+You can try plotting the word count (or one of the other numerical variables) as a function of other categorical variables, like sex.
+```{r tryplots, exercise=TRUE, exercise.lines=3}
+
+```
+
+
+#### 3.2.2 Relationship between two numerical variables: the scatterplot
+Let's have a look at the relationship between word count and hours of sleep.
+```{r scatter, exercise=TRUE}
+with(phd, plot(wdCount~sleep.hours, xlab="Average hours of sleep each night", ylab="Average words written a day", main="Word count as a function of hours of sleep"))
+```
+
+**Q** What does this graph show? What does it suggest about the data?   
+
+Now modify the code to look at the relationship between hours of sleep and hours spent playing computer games.
+
+```{r scatter2, exercise=TRUE}
+with(phd, plot(wdCount~sleep.hours, xlab="Average hours of sleep each night", ylab="Average words written a day", main="Word count as a function of hours of sleep"))
+```
+
+```{r scatter2-hint}
+with(phd, plot(sleep.hours~cg.hours, xlab="Average hours spent playing computer games", ylab="Average hours of sleep each night", main="Hours of sleep as a function of gaming time"))
+```
+
+**Q** What does this plot suggest? 
+
+## 4. Exercises
+Open your own R studio and try to explore the Robey dataset from the car package - see functions below to load the dataset.
+```{r load-Robey, echo=TRUE}
+#install.packages("car") #uncomment if the package is not installed
+library(car)
+data(Robey)#load package
+#help(Robey) #if you want a description of the dataset
+```
+
+
+#### 1 - discovering the dataset
+1.1 How many variables do we have in the dataset? 
+1.2 What types of variables are they?  
+1.3 Which one is the response variable, which ones are explanatory?  
+1.4 What are the levels of the "region" variable?  
+
+#### 2 - first plots
+2.1 What does the fertility rate distribution look like?  
+2.2 Is it normally distributed?  
+2.3 Same questions for the contraceptors.  
+
+#### 3 - central tendency and spread
+3.1 Choose a measure of central tendency and a measure of spread for the fertility rate and report them.  
+3.2 Represent them on a graph.  
+3.3 Same questions for the contraceptors.  
+
+#### 4 - the Region variable
+4.1 How many observations are there for each region?  
+4.2 Choose a measure of central tendency for region and report it.  
+4.3 Plot the region variable  
+
+#### 5 - relationships
+5.1 Create a table of mean fertility rate by region.  
+5.2 Represent graphically the mean fertility rate by region.  
+5.3 Do the same with contraceptors by region.  
+5.4 Create a scatterplot with appropriate variables.  
+5.5 Bonus: Make a relevant plot of all the variables.
