@@ -215,7 +215,6 @@ levels(dogCol)[2]<- "brown"
 levels(dogCol)
 ```
 
-
 ## Loops and conditional statements
 
 The following is a loop.This iterates over all the items in dogCol (i). It checks if the item *i* is between 1 and 3 (i.e., it will only do something for the first 3 items in the vector). If it is so, it replaces the value of that item in dogCol by a the value "white".
@@ -255,4 +254,56 @@ for (i in 1:length(dogCol)){
 
 ```
 
+## Data frames
+A data frame is a matrix with rows (observations) and columns (variables). Let's take our dogs again:
+
+```{r dogs, echo=TRUE}
+dogs <- c(1:13)
+dogsCol <- c(rep("black", 5), rep("brown",5), rep("white",3))
+```
+
+We have two vectors. We're going to convert them into a data frame with the data.frame() function. This enables us to rename our variables:
+```{r dogSet1, echo=TRUE}
+niceDogs <- data.frame(dogID = dogs, dogColour = dogsCol)
+```
+
+There's another way to do it:
+```{r dogSet2, echo=TRUE}
+niceDogs2<-as.data.frame(cbind(dogs, dogsCol))
+```
+
+Have a look at the first lines of both to see what they look like:
+```{r headdogs, exercise=TRUE}
+
+```
+
+
+Some useful functions for data frames include *cbind()* to add a new column to our dataset or *rbind()* to add a new row.  
+Both work the same way: cbind(dataframe, new column). (But don't forget to attribute it to a new variable if you want to save it!).  
+Here is a vector with the dog's age. Add it as a new column to the niceDogs dataset and save that as niceDogs3.
+```{r cbind, exercise=TRUE}
+ageDogs <- c(3,2,5,13,1,4,9,11,6,12,5,7,8)
+
+```
+
+```{r cbind-hint}
+niceDogs3<-cbind(niceDogs, ageDogs)
+```
+
+Now add the following dog to niceDogs
+```{r doggy14, exercise=TRUE}
+doggy14 <- data.frame(dogID=14, dogColour="grey")
+
+
+```
+
+```{r doggy14-hint}
+niceDogs4<-rbind(niceDogs, doggy14)
+```
+
+You can also figure out the size of your data frame with nrow() and ncol()
+```{r size, exercise=TRUE}
+nrow(niceDogs)
+ncol(niceDogs)
+```
 
